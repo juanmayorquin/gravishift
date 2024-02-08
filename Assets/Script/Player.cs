@@ -7,18 +7,27 @@ public class Player : MonoBehaviour
 {
     private float horizontal;
     private bool isFacingRight;
+    private Vector2 startPos;
+    private bool hasGravityBelt;
 
+    [SerializeField] private int lifes, score;
+
+    [SerializeField] private GameManager gameManager;
     [SerializeField] float speed;
     [SerializeField] float jump;
     [SerializeField] Rigidbody2D rb;
     [SerializeField] Transform groundCheck;
-    [SerializeField] LayerMask groundLayer;
+    [SerializeField] LayerMask groundLayer, boxLayer;
     [SerializeField] Animator animator;
 
     // Start is called before the first frame update
     void Start()
     {
-        
+        startPos = transform.position;
+        isFacingRight = true;
+        hasGravityBelt = false;
+        GUI.lifes = lifes;
+        GUI.score = score;
     }
 
     // Update is called once per frame
@@ -49,7 +58,7 @@ public class Player : MonoBehaviour
 
     private bool isGrounded()
     {
-        return Physics2D.OverlapCircle(groundCheck.position, 0.01f, groundLayer);
+        return Physics2D.OverlapCircle(groundCheck.position, 0.01f, groundLayer) || Physics2D.OverlapCircle(groundCheck.position, 0.01f, boxLayer);
     }
 
 
@@ -63,10 +72,44 @@ public class Player : MonoBehaviour
     }
     private void FlipGravity()
     {
-        if (Input.GetKeyDown(KeyCode.LeftControl))
+        if (Input.GetKeyDown(KeyCode.LeftControl) && hasGravityBelt)
         {
             transform.localScale = new Vector3(transform.localScale.x, -transform.localScale.y, transform.localScale.z);
             rb.gravityScale *= -1;
         }
+    }
+
+    public void Die()
+    {
+        if(lifes > 1)
+        {
+            lifes--;
+        } else if (lifes <= 1)
+        {
+            gameManager.GameOver();
+        }
+        GUI.lifes = lifes;
+        Respawn();
+    }
+
+    public void Respawn()
+    {
+        rb.gravityScale = 1f;
+        rb.velocity = Vector3.zero;
+        transform.position = startPos;
+        transform.localScale = Vector3.one;
+        isFacingRight = true;
+        
+    }
+
+    public void AcquireGravityBelt()
+    {
+        hasGravityBelt = true;
+    }
+
+    public void increaseScore(int amount)
+    {
+        score += amount;
+        GUI.score = score;
     }
 }

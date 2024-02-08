@@ -4,8 +4,16 @@ using UnityEngine;
 
 public class Box : MonoBehaviour
 {
+    private Vector2 startPos;
     private Transform dragging = null;
     private Vector3 offset;
+
+    [SerializeField] private Rigidbody2D rb;
+
+    private void Start()
+    {
+        startPos = transform.position;
+    }
 
     // Update is called once per frame
     void Update()
@@ -26,6 +34,13 @@ public class Box : MonoBehaviour
         if (dragging != null)
         {
             dragging.position = UnityEngine.Camera.main.ScreenToWorldPoint(Input.mousePosition) + offset;
+            rb.velocity = Vector2.zero;
         }
+    }
+
+    public void Respawn()
+    {
+        transform.position = startPos;
+        rb.velocity = Vector2.zero;
     }
 }
